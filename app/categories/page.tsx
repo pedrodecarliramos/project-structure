@@ -2,7 +2,6 @@ import { getAllCategories } from "@/lib/blog"
 import { CategoryCard } from "@/components/blog/category-card"
 import { Header } from "@/components/blog/header"
 import { Footer } from "@/components/blog/footer"
-import { Home } from "@/components//blog/"
 
 export const metadata = {
   title: "Categories - Modern Blog",
