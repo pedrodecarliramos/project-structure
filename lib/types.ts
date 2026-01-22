@@ -1,5 +1,7 @@
-// Database types and interfaces
+// lib/types.ts
+
 export interface User {
+  sub: string
   id: string
   email: string
   password: string
@@ -25,6 +27,15 @@ export interface Role {
   permissions: string[]
   createdAt: Date
   updatedAt: Date
+}
+
+// ESTA É A PEÇA QUE FALTA NO SEU QUEBRA-CABEÇA:
+export interface RefreshToken {
+  id: string
+  userId: string
+  expiresAt: Date
+  revoked: boolean
+  createdAt: Date
 }
 
 export interface AuditLog {

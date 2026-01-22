@@ -4,37 +4,42 @@ import { verifyToken } from "@/lib/auth"
 
 export async function POST(request: NextRequest) {
   try {
-    // Get refresh token from cookie
     const refreshToken = request.cookies.get("refreshToken")?.value
 
     if (refreshToken) {
-      // Revoke refresh token
-      db.revokeRefreshToken(refreshToken)
-
-      // Log activity
-      const payload = verifyToken(refreshToken)
+      const payload = await verifyToken(refreshToken)
+      
       if (payload) {
-        db.createAuditLog({
-          userId: payload.userId,
-          action: "logout",
-          resource: "auth",
-          resourceId: payload.userId,
-          ip: request.headers.get("x-forwarded-for") || "unknown",
-          userAgent: request.headers.get("user-agent") || "unknown",
-        })
+        const userId = payload.sub || payload.id
+        
+        await db.revokeRefreshToken(refreshToken)
+
+        const user = await db.getUserById(userId)
+
+        if (user) {
+          await db.createAuditLog({
+            userId: user.id, // Erro 2339 resolvido pelo await anterior
+            action: "LOGOUT",
+            resource: "auth",
+            details: `Usuário ${user.email} encerrou a sessão.`,
+            ipAddress: request.headers.get("x-forwarded-for") || "127.0.0.1",
+            userAgent: request.headers.get("user-agent") || "unknown",
+          })
+        }
       }
     }
 
-    // Clear refresh token cookie
-    const response = NextResponse.json({
-      message: "Logout realizado com sucesso",
+    const response = NextResponse.json({ message: "Sessão encerrada com sucesso" })
+    
+    response.cookies.set("refreshToken", "", {
+      httpOnly: true,
+      expires: new Date(0), // Expira o cookie imediatamente
+      path: "/",
     })
-
-    response.cookies.delete("refreshToken")
 
     return response
   } catch (error) {
-    console.error("[v0] Logout error:", error)
-    return NextResponse.json({ error: "Erro ao fazer logout" }, { status: 500 })
+    console.error("[LOGOUT_ERROR]:", error)
+    return NextResponse.json({ error: "Erro ao processar logout" }, { status: 500 })
   }
 }

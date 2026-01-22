@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     const { email } = forgotPasswordSchema.parse(body)
 
     // Find user
-    const user = db.getUserByEmail(email)
+    const user = await db.getUserByEmail(email)
 
     // Always return success to prevent email enumeration
     if (!user) {
@@ -26,16 +26,16 @@ export async function POST(request: NextRequest) {
     const resetToken = nanoid(32)
 
     // Store reset token
-    db.createPasswordResetToken(user.id, resetToken)
+    db.getPasswordResetToken(user.id, resetToken)
 
     // Log activity
     db.createAuditLog({
       userId: user.id,
       action: "forgot_password",
       resource: "auth",
-      resourceId: user.id,
-      ip: request.headers.get("x-forwarded-for") || "unknown",
       userAgent: request.headers.get("user-agent") || "unknown",
+      details: "",
+      ipAddress: ""
     })
 
     // In production, send email with reset link

@@ -19,7 +19,7 @@ async function verifyPassword(password: string, hash: string): Promise<boolean> 
 /**
  * Gera tokens únicos para sessões e verificações.
  */
-function generateToken(): string {
+export function generateToken(user: User): string {
   return uuidv4() + "-" + Date.now()
 }
 

@@ -1,9 +1,79 @@
-// Mock database service using localStorage
-import type { User, Role, AuditLog, Session, CreateUserInput, UpdateUserInput } from "./types"
+// lib/db.ts
+import type { User, Role, AuditLog, Session, CreateUserInput, UpdateUserInput, RefreshToken } from "./types"
 import { v4 as uuidv4 } from 'uuid' 
 
 class MockDatabase {
   private initialized = false
+
+ async getPasswordResetToken(token: string, resetToken: string): Promise<User | null> {
+    await this.ensureInitialized();
+    const users = await this.getUsers();
+    return users.find(u => u.resetPasswordToken === token) || null;
+  }
+
+  // CORREÇÃO: Método que a rota está pedindo
+  async deletePasswordResetToken(userId: string): Promise<void> {
+    await this.updateUser(userId, {
+      resetPasswordToken: undefined,
+      resetPasswordExpires: undefined
+    });
+  }
+
+  // CORREÇÃO: Método para revogar todas as sessões do usuário
+  async revokeAllUserRefreshTokens(userId: string): Promise<void> {
+    await this.ensureInitialized();
+    const tokens = this.getItem<RefreshToken>("refresh_tokens");
+    const updatedTokens = tokens.map(t => 
+      t.userId === userId ? { ...t, revoked: true } : t
+    );
+    this.setItem("refresh_tokens", updatedTokens);
+  }
+
+  async getRefreshToken(token: string): Promise<RefreshToken | null> {
+    await this.ensureInitialized()
+    const tokens = this.getItem<RefreshToken>("refresh_tokens")
+    // Converte datas de string para Date caso venham do localStorage
+    const found = tokens.find((t) => t.id === token)
+    if (found) {
+      found.expiresAt = new Date(found.expiresAt)
+    }
+    return found || null
+  }
+
+  async storeRefreshToken(userId: string, token: string, expiresAt: Date): Promise<void> {
+    await this.ensureInitialized()
+    const tokens = this.getItem<RefreshToken>("refresh_tokens")
+    
+    const newToken: RefreshToken = {
+      id: token,
+      userId,
+      expiresAt,
+      revoked: false,
+      createdAt: new Date()
+    }
+    
+    tokens.push(newToken)
+    this.setItem("refresh_tokens", tokens)
+  }
+
+  async revokeRefreshToken(token: string): Promise<void> {
+    await this.ensureInitialized()
+    const tokens = this.getItem<RefreshToken>("refresh_tokens")
+    const index = tokens.findIndex((t) => t.id === token)
+    
+    if (index !== -1) {
+      tokens[index].revoked = true
+      this.setItem("refresh_tokens", tokens)
+    }
+  }
+
+  async getVerificationToken(token: string): Promise<User | null> {
+    await this.ensureInitialized()
+    const users = await this.getUsers()
+    return users.find((u) => u.verificationToken === token) || null
+  }
+
+  // --- INFRAESTRUTURA LOCALSTORAGE ---
 
   private getItem<T>(key: string): T[] {
     if (typeof window === "undefined") return []
@@ -20,11 +90,10 @@ class MockDatabase {
     try {
       localStorage.setItem(key, JSON.stringify(data))
     } catch (e) {
-      console.error("[v0] Error saving to localStorage:", e)
+      console.error("[DB] Erro ao salvar no localStorage:", e)
     }
   }
 
-  
   private async ensureInitialized(): Promise<void> {
     if (typeof window === "undefined") return
     if (!this.initialized) {
@@ -33,6 +102,8 @@ class MockDatabase {
       this.initialized = true
     }
   }
+
+  // --- GERENCIAMENTO DE ROLES E ADMIN ---
 
   initializeRoles(): void {
     if (typeof window === "undefined") return
@@ -60,10 +131,6 @@ class MockDatabase {
     }
   }
 
-  /**
-   * O Gênesis: Cria o administrador padrão.
-   * Credenciais: admin@admin.com / admin123
-   */
   async initializeDefaultAdmin(): Promise<void> {
     const users = this.getItem<User>("users")
     const adminExists = users.some((u) => u.email.toLowerCase() === "admin@admin.com")
@@ -82,6 +149,7 @@ class MockDatabase {
         emailVerified: true,
         createdAt: new Date(),
         updatedAt: new Date(),
+        sub: ""
       }
 
       users.push(adminUser)
@@ -89,6 +157,8 @@ class MockDatabase {
       console.log("%c[REINO] Trono Administrativo Restaurado!", "color: #f59e0b; font-weight: bold;")
     }
   }
+
+  // --- MÉTODOS DE USUÁRIO ---
 
   async getUsers(): Promise<User[]> {
     await this.ensureInitialized()
@@ -144,6 +214,8 @@ class MockDatabase {
     this.setItem("users", filtered)
     return true
   }
+
+  // --- AUDITORIA E SESSÕES ---
 
   async createAuditLog(log: Omit<AuditLog, "id" | "createdAt">): Promise<AuditLog> {
     await this.ensureInitialized()

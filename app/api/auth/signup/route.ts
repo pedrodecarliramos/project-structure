@@ -1,69 +1,60 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
-import { hashPassword } from "@/lib/auth"
 import { z } from "zod"
-import { nanoid } from "nanoid"
+import { hashPassword } from "@/lib/auth"
+import { v4 as uuidv4 } from "uuid"
 
 const signupSchema = z.object({
-  name: z.string().min(2, "Nome deve ter no mínimo 2 caracteres"),
-  email: z.string().email("Email inválido"),
-  password: z.string().min(8, "Senha deve ter no mínimo 8 caracteres"),
-  cpf: z.string().optional(),
+  name: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
+  email: z.string().email("E-mail inválido"),
+  password: z.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
 })
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const validatedData = signupSchema.parse(body)
+    const { name, email, password } = signupSchema.parse(body)
 
-    // Check if user already exists
-    const existingUser = db.getUserByEmail(validatedData.email)
+    const existingUser = await db.getUserByEmail(email)
     if (existingUser) {
-      return NextResponse.json({ error: "Email já cadastrado" }, { status: 400 })
+      return NextResponse.json({ error: "Este e-mail já está em uso" }, { status: 400 })
     }
 
-    // Hash password
-    const passwordHash = await hashPassword(validatedData.password)
+    const hashedPassword = await hashPassword(password)
+    const verificationToken = uuidv4()
 
-    // Create verification token
-    const verificationToken = nanoid(32)
-
-    // Create user
-    const user = db.createUser({
-      name: validatedData.name,
-      email: validatedData.email,
-      password: passwordHash,
-      cpf: validatedData.cpf,
-      emailVerified: false,
-      role: "user",
+    const newUser = await db.createUser({
+      name,
+      email,
+      password: hashedPassword,
+      roleId: "user",
       isActive: true,
+      emailVerified: false,
+      verificationToken,
+      sub: ""
     })
 
-    // Store verification token
-    db.createVerificationToken(user.id, verificationToken)
+    await db.updateUser(newUser.id, { verificationToken })
 
-    // Log activity
-    db.createAuditLog({
-      userId: user.id,
-      action: "signup",
-      resource: "user",
-      resourceId: user.id,
-      ip: request.headers.get("x-forwarded-for") || "unknown",
+    await db.createAuditLog({
+      userId: newUser.id,
+      action: "USER_SIGNUP",
+      resource: "auth", 
+      details: `Novo usuário registrado: ${newUser.email}`,
+      ipAddress: request.headers.get("x-forwarded-for") || "0.0.0.0",
       userAgent: request.headers.get("user-agent") || "unknown",
     })
 
-    // In production, send email with verification link
-    console.log(`[v0] Verification link: ${process.env.NEXT_PUBLIC_APP_URL}/verify-email?token=${verificationToken}`)
-
     return NextResponse.json({
-      message: "Usuário criado com sucesso. Verifique seu email.",
-      userId: user.id,
-    })
+      message: "Usuário registrado com sucesso! Verifique seu e-mail.",
+      userId: newUser.id,
+    }, { status: 201 })
+
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: error.errors[0].message }, { status: 400 })
     }
-    console.error("[v0] Signup error:", error)
-    return NextResponse.json({ error: "Erro ao criar usuário" }, { status: 500 })
+    console.error("[SIGNUP_ERROR]:", error)
+    return NextResponse.json({ error: "Erro ao processar o registro no reino" }, { status: 500 })
   }
 }

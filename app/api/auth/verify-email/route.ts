@@ -11,33 +11,32 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { token } = verifySchema.parse(body)
 
-    // Find verification token
-    const verification = db.getVerificationToken(token)
-    if (!verification) {
+    // No seu db.ts atualizado, buscamos o usuário que possui este token
+    const users = await db.getUsers()
+    const user = users.find((u) => u.verificationToken === token)
+
+    if (!user) {
       return NextResponse.json({ error: "Token inválido ou expirado" }, { status: 400 })
     }
 
-    // Check if token is expired (24 hours)
-    const tokenAge = Date.now() - verification.createdAt.getTime()
+    const tokenAge = Date.now() - new Date(user.createdAt).getTime()
     if (tokenAge > 24 * 60 * 60 * 1000) {
-      db.deleteVerificationToken(token)
-      return NextResponse.json({ error: "Token expirado. Solicite um novo email de verificação." }, { status: 400 })
+      await db.updateUser(user.id, { verificationToken: undefined })
+      return NextResponse.json({ error: "Token expirado. Solicite um novo e-mail." }, { status: 400 })
     }
 
-    // Update user
-    db.updateUser(verification.userId, { emailVerified: true })
+    await db.updateUser(user.id, { 
+      emailVerified: true, 
+      verificationToken: undefined 
+    })
 
-    // Delete verification token
-    db.deleteVerificationToken(token)
-
-    // Log activity
-    db.createAuditLog({
-      userId: verification.userId,
-      action: "verify_email",
-      resource: "user",
-      resourceId: verification.userId,
-      ip: request.headers.get("x-forwarded-for") || "unknown",
-      userAgent: request.headers.get("user-agent") || "unknown",
+    await db.createAuditLog({
+      userId: user.id,
+      action: "EMAIL_VERIFIED",
+      resource: "auth",
+      details: `E-mail ${user.email} verificado com sucesso`,
+      ipAddress: request.headers.get("x-forwarded-for") || "0.0.0.0",
+      userAgent: request.headers.get("user-agent") || "browser",
     })
 
     return NextResponse.json({
@@ -47,7 +46,7 @@ export async function POST(request: NextRequest) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: error.errors[0].message }, { status: 400 })
     }
-    console.error("[v0] Verify email error:", error)
-    return NextResponse.json({ error: "Erro ao verificar email" }, { status: 500 })
+    console.error("[Auth API] Erro ao verificar e-mail:", error)
+    return NextResponse.json({ error: "Erro interno ao verificar e-mail" }, { status: 500 })
   }
 }
