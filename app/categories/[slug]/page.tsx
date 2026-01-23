@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   if (!category) {
     return {
-      title: "Category Not Found",
+      title: "Categoria não encontrada - Modern Blog",
     }
   }
 
@@ -50,7 +50,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
             <Button variant="ghost" size="sm" asChild className="mb-6">
               <Link href="/categories">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Categories
+                Voltar para Categorias
               </Link>
             </Button>
             <h1 className="text-4xl md:text-5xl font-bold mb-4">{category.name}</h1>
@@ -71,7 +71,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
               </div>
             ) : (
               <div className="text-center py-12">
-                <p className="text-muted-foreground">No posts found in this category yet.</p>
+                <p className="text-muted-foreground">Nenhum post encontrado nesta categoria ainda.</p>
               </div>
             )}
           </div>

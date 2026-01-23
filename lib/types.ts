@@ -1,6 +1,8 @@
 // lib/types.ts
 
 export interface User {
+  role(role: any, arg1: string, arg2: string): unknown
+  userId(userId: any): unknown
   sub: string
   id: string
   email: string

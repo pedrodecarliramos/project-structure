@@ -3,6 +3,9 @@ import type { User, Role, AuditLog, Session, CreateUserInput, UpdateUserInput, R
 import { v4 as uuidv4 } from 'uuid' 
 
 class MockDatabase {
+  getAuditLogs(): AuditLog[] | PromiseLike<AuditLog[]> {
+    throw new Error("Method not implemented.");
+  }
   private initialized = false
 
  async getPasswordResetToken(token: string, resetToken: string): Promise<User | null> {

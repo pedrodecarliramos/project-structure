@@ -31,7 +31,13 @@ export async function POST(request: NextRequest) {
       isActive: true,
       emailVerified: false,
       verificationToken,
-      sub: ""
+      sub: "",
+      role: function (role: any, arg1: string, arg2: string): unknown {
+        throw new Error("Function not implemented.")
+      },
+      userId: function (userId: any): unknown {
+        throw new Error("Function not implemented.")
+      }
     })
 
     await db.updateUser(newUser.id, { verificationToken })

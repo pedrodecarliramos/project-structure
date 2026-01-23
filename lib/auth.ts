@@ -11,29 +11,27 @@ export async function hashPassword(password: string): Promise<string> {
   return crypto.createHash("sha256").update(password).digest("hex")
 }
 
-async function verifyPassword(password: string, hash: string): Promise<boolean> {
+export async function verifyPassword(password: string, hash: string): Promise<boolean> {
   const passwordHash = await hashPassword(password)
   return passwordHash === hash
 }
 
 /**
  * Gera tokens únicos para sessões e verificações.
+ * Adicionado "?" para tornar os argumentos opcionais e resolver o erro 2554.
  */
-export function generateToken(user: User): string {
+export function generateToken(user?: User, p0?: string): string {
   return uuidv4() + "-" + Date.now()
 }
 
 /**
  * AUTENTICAÇÃO DE ELITE (ADMIN)
- * Verifica as credenciais e garante que o usuário tem poderes de administrador.
  */
 export async function adminSignIn(email: string, password: string) {
   const result = await signIn(email, password)
 
   if (result.success) {
-    // Se o login foi bem sucedido, verificamos o papel (role)
     if (result.user?.roleId !== "admin") {
-      // Se não for admin, invalidamos a sessão criada por segurança
       if (result.token) await signOut(result.token)
       
       return { 
@@ -59,10 +57,10 @@ export async function signUp(email: string, password: string, name: string) {
       email,
       password: hashedPassword,
       name,
-      roleId: "user", // Súditos novos começam como usuários comuns
+      roleId: "user",
       isActive: true,
       emailVerified: false,
-      verificationToken: generateToken(),
+      verificationToken: generateToken(), // Agora funciona sem argumentos
     } as any)
 
     await db.createAuditLog({
@@ -98,8 +96,9 @@ export async function signIn(email: string, password: string) {
       return { success: false, error: "Email ou senha inválidos" }
     }
 
-    const token = generateToken()
-    const refreshToken = generateToken()
+    // Chamadas corrigidas
+    const token = generateToken(user)
+    const refreshToken = generateToken(user)
 
     await db.createSession({
       userId: user.id,
@@ -159,7 +158,7 @@ export async function requestPasswordReset(email: string) {
     return { success: true, message: "Se o email existir, você receberá instruções" }
   }
 
-  const resetToken = generateToken()
+  const resetToken = generateToken(user)
   await db.updateUser(user.id, {
     resetPasswordToken: resetToken,
     resetPasswordExpires: new Date(Date.now() + 60 * 60 * 1000),

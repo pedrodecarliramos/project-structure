@@ -1,12 +1,19 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import { verifyToken } from "@/lib/auth"
-import { checkPermission } from "@/lib/permissions"
+import { hasPermission } from "@/lib/permissions" // 1. Fixed import name
 
-// GET /api/logs - Get audit logs with pagination and filters
+// If you don't have a global Log type, define it here or import it
+interface AuditLog {
+  id: string;
+  userId: string;
+  action: string;
+  resource: string;
+  createdAt: Date;
+}
+
 export async function GET(request: NextRequest) {
   try {
-    // Get access token from header
     const authHeader = request.headers.get("authorization")
     const token = authHeader?.replace("Bearer ", "")
 
@@ -14,24 +21,21 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Token não fornecido" }, { status: 401 })
     }
 
-    // Verify token
-    const payload = verifyToken(token)
+    const payload = await verifyToken(token)
     if (!payload) {
       return NextResponse.json({ error: "Token inválido" }, { status: 401 })
     }
 
-    // Get current user
-    const currentUser = db.getUserById(payload.userId)
+    const currentUser = await db.getUserById(payload.userId as unknown as string)
     if (!currentUser) {
       return NextResponse.json({ error: "Usuário não encontrado" }, { status: 401 })
     }
 
-    // Check permission
-    if (!checkPermission(currentUser.role, "logs", "read")) {
+    // 2. Changed 'checkPermission' to 'hasPermission'
+    if (!hasPermission(currentUser.role, "logs", "read")) {
       return NextResponse.json({ error: "Sem permissão para visualizar logs" }, { status: 403 })
     }
 
-    // Get query parameters
     const searchParams = request.nextUrl.searchParams
     const page = Number.parseInt(searchParams.get("page") || "1")
     const limit = Number.parseInt(searchParams.get("limit") || "20")
@@ -39,40 +43,41 @@ export async function GET(request: NextRequest) {
     const userId = searchParams.get("userId") || ""
     const resource = searchParams.get("resource") || ""
 
-    // Get logs with filters
-    let logs = db.getAllAuditLogs()
+    // 3. Ensure this method exists in your db.ts. 
+    // If db.getAuditLogs() is the correct name, use that.
+    let logs: AuditLog[] = await db.getAuditLogs() 
 
-    // Apply filters
+    // 4. Added explicit types to callback parameters
     if (action) {
-      logs = logs.filter((log) => log.action === action)
+      logs = logs.filter((log: AuditLog) => log.action === action)
     }
 
     if (userId) {
-      logs = logs.filter((log) => log.userId === userId)
+      logs = logs.filter((log: AuditLog) => log.userId === userId)
     }
 
     if (resource) {
-      logs = logs.filter((log) => log.resource === resource)
+      logs = logs.filter((log: AuditLog) => log.resource === resource)
     }
 
-    // Sort by date (newest first)
-    logs.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+    // 5. Added types to sort parameters
+    logs.sort((a: AuditLog, b: AuditLog) => b.createdAt.getTime() - a.createdAt.getTime())
 
-    // Pagination
     const total = logs.length
     const startIndex = (page - 1) * limit
     const endIndex = startIndex + limit
     const paginatedLogs = logs.slice(startIndex, endIndex)
 
-    // Enrich logs with user information
-    const enrichedLogs = paginatedLogs.map((log) => {
-      const user = db.getUserById(log.userId)
-      return {
-        ...log,
-        userName: user?.name || "Usuário Desconhecido",
-        userEmail: user?.email || "",
-      }
-    })
+    const enrichedLogs = await Promise.all(
+      paginatedLogs.map(async (log: AuditLog) => {
+        const user = await db.getUserById(log.userId)
+        return {
+          ...log,
+          userName: user?.name || "Usuário Desconhecido",
+          userEmail: user?.email || "",
+        }
+      })
+    )
 
     return NextResponse.json({
       logs: enrichedLogs,
@@ -84,7 +89,7 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (error) {
-    console.error("[v0] Get logs error:", error)
+    console.error("Get logs error:", error)
     return NextResponse.json({ error: "Erro ao buscar logs" }, { status: 500 })
   }
 }

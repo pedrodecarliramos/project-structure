@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
-import { verifyPassword, generateToken, generateRefreshToken } from "@/lib/auth"
+// Certifique-se de que essas funções estejam com "export" no lib/auth.ts
+import { verifyPassword, generateToken } from "@/lib/auth" 
 import { z } from "zod"
 
 const loginSchema = z.object({
@@ -13,44 +14,48 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const validatedData = loginSchema.parse(body)
 
-    // Find user
-    const user = db.getUserByEmail(validatedData.email)
+    // CORREÇÃO: Adicionado 'await' aqui
+    const user = await db.getUserByEmail(validatedData.email)
+    
     if (!user) {
       return NextResponse.json({ error: "Email ou senha inválidos" }, { status: 401 })
     }
 
-    // Check if user is active
     if (!user.isActive) {
       return NextResponse.json({ error: "Conta desativada. Entre em contato com o suporte." }, { status: 403 })
     }
 
-    // Verify password
     const isValidPassword = await verifyPassword(validatedData.password, user.password)
     if (!isValidPassword) {
       return NextResponse.json({ error: "Email ou senha inválidos" }, { status: 401 })
     }
 
-    // Generate tokens
+    // Gerando tokens (usando a função que corrigimos antes)
     const accessToken = generateToken(user)
-    const refreshToken = generateRefreshToken(user)
+    // Se não tiver generateRefreshToken separada, use a generateToken com um parâmetro tipo
+    const refreshToken = generateToken(user, "refresh")
 
-    // Store refresh token
-    db.createRefreshToken(user.id, refreshToken)
+    // CORREÇÃO: createSession ou similar (conforme seu erro no db.ts indicou)
+    // O erro disse que 'createRefreshToken' não existe no db.ts
+    await db.createSession({
+        userId: user.id,
+        token: accessToken,
+        refreshToken: refreshToken,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+    })
 
-    // Update last login
-    db.updateUser(user.id, { lastLogin: new Date() })
+    await db.updateUser(user.id, { lastLogin: new Date() })
 
-    // Log activity
-    db.createAuditLog({
+    await db.createAuditLog({
       userId: user.id,
       action: "login",
       resource: "auth",
-      resourceId: user.id,
-      ip: request.headers.get("x-forwarded-for") || "unknown",
+      // CORREÇÃO: Removido resourceId (não existe no tipo) e adicionado await
+      details: `Login via portal`, 
+      ipAddress: request.headers.get("x-forwarded-for") || "unknown", // Ajustado para ipAddress se for o tipo correto
       userAgent: request.headers.get("user-agent") || "unknown",
     })
 
-    // Set refresh token as httpOnly cookie
     const response = NextResponse.json({
       message: "Login realizado com sucesso",
       accessToken,
@@ -58,7 +63,7 @@ export async function POST(request: NextRequest) {
         id: user.id,
         name: user.name,
         email: user.email,
-        role: user.role,
+        role: (user as any).roleId, // Ajuste para roleId conforme erro anterior
         emailVerified: user.emailVerified,
       },
     })
@@ -67,7 +72,7 @@ export async function POST(request: NextRequest) {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60, // 7 days
+      maxAge: 7 * 24 * 60 * 60,
       path: "/",
     })
 

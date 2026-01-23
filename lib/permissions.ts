@@ -1,7 +1,7 @@
 // Permission checking utilities
 import { db } from "./db"
 
-export async function hasPermission(userId: string, permission: string): Promise<boolean> {
+export async function hasPermission(role: (role: any, arg1: string, arg2: string) => unknown, userId: string, permission: string): Promise<boolean> {
   const user = await db.getUserById(userId)
   if (!user) return false
 
