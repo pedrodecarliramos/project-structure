@@ -152,7 +152,13 @@ class MockDatabase {
         emailVerified: true,
         createdAt: new Date(),
         updatedAt: new Date(),
-        sub: ""
+        sub: "",
+        role: function (role: any, arg1: string, arg2: string): unknown {
+          throw new Error("Function not implemented.");
+        },
+        userId: function (userId: any): unknown {
+          throw new Error("Function not implemented.");
+        }
       }
 
       users.push(adminUser)

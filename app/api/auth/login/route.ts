@@ -30,13 +30,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Email ou senha inválidos" }, { status: 401 })
     }
 
-    // Gerando tokens (usando a função que corrigimos antes)
     const accessToken = generateToken(user)
-    // Se não tiver generateRefreshToken separada, use a generateToken com um parâmetro tipo
     const refreshToken = generateToken(user, "refresh")
 
-    // CORREÇÃO: createSession ou similar (conforme seu erro no db.ts indicou)
-    // O erro disse que 'createRefreshToken' não existe no db.ts
     await db.createSession({
         userId: user.id,
         token: accessToken,

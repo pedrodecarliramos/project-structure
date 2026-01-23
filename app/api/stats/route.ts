@@ -1,12 +1,11 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import { verifyToken } from "@/lib/auth"
-import { checkPermission } from "@/lib/permissions"
+import { hasPermission } from "@/lib/permissions"
+import type { User, AuditLog } from "@/lib/types"
 
-// GET /api/stats - Get statistics for admin dashboard
 export async function GET(request: NextRequest) {
   try {
-    // Get access token from header
     const authHeader = request.headers.get("authorization")
     const token = authHeader?.replace("Bearer ", "")
 
@@ -14,63 +13,58 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Token não fornecido" }, { status: 401 })
     }
 
-    // Verify token
-    const payload = verifyToken(token)
-    if (!payload) {
+    const payload = (await verifyToken(token)) as any
+    if (!payload || !payload.userId) {
       return NextResponse.json({ error: "Token inválido" }, { status: 401 })
     }
 
-    // Get current user
-    const currentUser = db.getUserById(payload.userId)
+    const currentUser = await db.getUserById(payload.userId)
     if (!currentUser) {
       return NextResponse.json({ error: "Usuário não encontrado" }, { status: 401 })
     }
 
-    // Check permission
-    if (!checkPermission(currentUser.role, "stats", "read")) {
+    const roleId = String(currentUser.roleId)
+    const canRead = (hasPermission as any)(roleId, "stats", "read")
+
+    if (!canRead) {
       return NextResponse.json({ error: "Sem permissão para visualizar estatísticas" }, { status: 403 })
     }
 
-    // Get all users
-    const users = db.getAllUsers()
-    const logs = db.getAllAuditLogs()
+    const users = await db.getUsers()
+    const logs = await db.getAuditLogs()
 
-    // Calculate statistics
     const totalUsers = users.length
-    const activeUsers = users.filter((u) => u.isActive).length
-    const verifiedUsers = users.filter((u) => u.emailVerified).length
+    const activeUsers = users.filter((u: User) => u.isActive).length
+    const verifiedUsers = users.filter((u: User) => u.emailVerified).length
 
-    // Users by role
     const usersByRole = users.reduce(
-      (acc, user) => {
-        acc[user.role] = (acc[user.role] || 0) + 1
+      (acc: Record<string, number>, user: User) => {
+        const roleName = user.roleId || "user"
+        acc[roleName] = (acc[roleName] || 0) + 1
         return acc
       },
       {} as Record<string, number>,
     )
 
-    // Recent signups (last 30 days)
     const thirtyDaysAgo = new Date()
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-    const recentSignups = users.filter((u) => u.createdAt >= thirtyDaysAgo).length
+    const recentSignups = users.filter((u: User) => new Date(u.createdAt) >= thirtyDaysAgo).length
 
-    // Activity by day (last 7 days)
     const sevenDaysAgo = new Date()
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
-    const recentLogs = logs.filter((log) => log.createdAt >= sevenDaysAgo)
+    const recentLogs = logs.filter((log: AuditLog) => new Date(log.createdAt) >= sevenDaysAgo)
 
     const activityByDay = recentLogs.reduce(
-      (acc, log) => {
-        const date = log.createdAt.toISOString().split("T")[0]
+      (acc: Record<string, number>, log: AuditLog) => {
+        const date = new Date(log.createdAt).toISOString().split("T")[0]
         acc[date] = (acc[date] || 0) + 1
         return acc
       },
       {} as Record<string, number>,
     )
 
-    // Most common actions
     const actionCounts = logs.reduce(
-      (acc, log) => {
+      (acc: Record<string, number>, log: AuditLog) => {
         acc[log.action] = (acc[log.action] || 0) + 1
         return acc
       },
