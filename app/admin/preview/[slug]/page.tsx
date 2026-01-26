@@ -50,11 +50,11 @@ export default async function AdminPreviewPage({ params }: { params: Promise<{ s
         <Eye className="h-4 w-4" />
         <AlertDescription className="flex items-center justify-between">
           <span>
-            You are viewing this post in <strong>preview mode</strong>
+            Você está visualizando este post em <strong>modo de pré-visualização</strong>
           </span>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" asChild>
-              <Link href="/admin">Back to Dashboard</Link>
+              <Link href="/admin">Voltar ao Painel</Link>
             </Button>
             <Button size="sm" asChild>
               <Link href={`/posts/${post.slug}`}>View Live</Link>
@@ -72,7 +72,7 @@ export default async function AdminPreviewPage({ params }: { params: Promise<{ s
                 <Button variant="ghost" size="sm" asChild className="mb-6">
                   <Link href="/admin">
                     <ArrowLeft className="mr-2 h-4 w-4" />
-                    Back to Admin
+                    Voltar ao Admin
                   </Link>
                 </Button>
 
@@ -203,9 +203,9 @@ export default async function AdminPreviewPage({ params }: { params: Promise<{ s
                     className="rounded-full"
                   />
                   <div>
-                    <h3 className="text-xl font-bold mb-2">About {post.author.name}</h3>
+                    <h3 className="text-xl font-bold mb-2">Sobre {post.author.name}</h3>
                     <p className="text-muted-foreground">
-                      A passionate writer and developer sharing insights about web development, programming, and design.
+                      Um escritor e desenvolvedor apaixonado por compartilhar insights sobre desenvolvimento web, programação e design.
                     </p>
                   </div>
                 </div>
