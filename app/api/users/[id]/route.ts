@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import { verifyToken, hashPassword } from "@/lib/auth"
-import { checkPermission } from "@/lib/permissions"
+import { hasPermission } from "@/lib/permissions" // Corrigido
 import { z } from "zod"
 
 const updateUserSchema = z.object({
@@ -16,44 +16,32 @@ const updateUserSchema = z.object({
 // GET /api/users/[id] - Get user by ID
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    // Get access token from header
     const authHeader = request.headers.get("authorization")
     const token = authHeader?.replace("Bearer ", "")
 
-    if (!token) {
-      return NextResponse.json({ error: "Token não fornecido" }, { status: 401 })
-    }
+    if (!token) return NextResponse.json({ error: "Token não fornecido" }, { status: 401 })
 
-    // Verify token
-    const payload = verifyToken(token)
-    if (!payload) {
-      return NextResponse.json({ error: "Token inválido" }, { status: 401 })
-    }
+    const payload = verifyToken(token) as any
+    if (!payload) return NextResponse.json({ error: "Token inválido" }, { status: 401 })
 
-    // Get current user
-    const currentUser = db.getUserById(payload.userId)
-    if (!currentUser) {
-      return NextResponse.json({ error: "Usuário não encontrado" }, { status: 401 })
-    }
+    // Corrigido: Adicionado await
+    const currentUser = await db.getUserById(payload.userId)
+    if (!currentUser) return NextResponse.json({ error: "Usuário não encontrado" }, { status: 401 })
 
-    // Check permission (can view own profile or has admin permission)
+    // Corrigido: Acesso após await e hasPermission
     const isOwnProfile = currentUser.id === params.id
-    if (!isOwnProfile && !checkPermission(currentUser.role, "users", "read")) {
-      return NextResponse.json({ error: "Sem permissão para visualizar este usuário" }, { status: 403 })
+    if (!isOwnProfile && !hasPermission(currentUser.role as any, "users", "read")) {
+      return NextResponse.json({ error: "Sem permissão" }, { status: 403 })
     }
 
-    // Get user
-    const user = db.getUserById(params.id)
-    if (!user) {
-      return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 })
-    }
+    // Corrigido: Adicionado await
+    const user = await db.getUserById(params.id)
+    if (!user) return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 })
 
-    // Remove password from response
-    const { password, ...sanitizedUser } = user
-
+    const { password, ...sanitizedUser } = user as any
     return NextResponse.json({ user: sanitizedUser })
   } catch (error) {
-    console.error("[v0] Get user error:", error)
+    console.error("[API GET ID] Error:", error)
     return NextResponse.json({ error: "Erro ao buscar usuário" }, { status: 500 })
   }
 }
@@ -61,154 +49,105 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 // PUT /api/users/[id] - Update user
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    // Get access token from header
     const authHeader = request.headers.get("authorization")
     const token = authHeader?.replace("Bearer ", "")
 
-    if (!token) {
-      return NextResponse.json({ error: "Token não fornecido" }, { status: 401 })
-    }
+    if (!token) return NextResponse.json({ error: "Token não fornecido" }, { status: 401 })
 
-    // Verify token
-    const payload = verifyToken(token)
-    if (!payload) {
-      return NextResponse.json({ error: "Token inválido" }, { status: 401 })
-    }
+    const payload = verifyToken(token) as any
+    if (!payload) return NextResponse.json({ error: "Token inválido" }, { status: 401 })
 
-    // Get current user
-    const currentUser = db.getUserById(payload.userId)
-    if (!currentUser) {
-      return NextResponse.json({ error: "Usuário não encontrado" }, { status: 401 })
-    }
+    // Corrigido: Adicionado await
+    const currentUser = await db.getUserById(payload.userId)
+    if (!currentUser) return NextResponse.json({ error: "Usuário não encontrado" }, { status: 401 })
 
-    // Check permission (can edit own profile or has admin permission)
     const isOwnProfile = currentUser.id === params.id
-    if (!isOwnProfile && !checkPermission(currentUser.role, "users", "update")) {
-      return NextResponse.json({ error: "Sem permissão para editar este usuário" }, { status: 403 })
+    if (!isOwnProfile && !hasPermission(currentUser.role as any, "users", "update")) {
+      return NextResponse.json({ error: "Sem permissão" }, { status: 403 })
     }
 
-    // Validate request body
     const body = await request.json()
     const validatedData = updateUserSchema.parse(body)
 
-    // Get target user
-    const targetUser = db.getUserById(params.id)
-    if (!targetUser) {
-      return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 })
-    }
+    const targetUser = await db.getUserById(params.id)
+    if (!targetUser) return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 })
 
-    // Prepare update data
     const updateData: any = {}
-
     if (validatedData.name) updateData.name = validatedData.name
     if (validatedData.email) {
-      // Check if email is already taken
-      const existingUser = db.getUserByEmail(validatedData.email)
+      const existingUser = await db.getUserByEmail(validatedData.email)
       if (existingUser && existingUser.id !== params.id) {
-        return NextResponse.json({ error: "Email já está em uso" }, { status: 400 })
+        return NextResponse.json({ error: "Email em uso" }, { status: 400 })
       }
       updateData.email = validatedData.email
     }
-    if (validatedData.password) {
-      updateData.password = await hashPassword(validatedData.password)
-    }
+    if (validatedData.password) updateData.password = await hashPassword(validatedData.password)
     if (validatedData.cpf !== undefined) updateData.cpf = validatedData.cpf
 
-    // Only admins can change role and active status
-    if (checkPermission(currentUser.role, "users", "update")) {
+    if (await hasPermission(currentUser.role as any, "users", "update")) {
       if (validatedData.role) updateData.role = validatedData.role
       if (validatedData.isActive !== undefined) updateData.isActive = validatedData.isActive
     }
 
-    // Update user
-    const updatedUser = db.updateUser(params.id, updateData)
+    // Corrigido: Adicionado await
+    const updatedUser = await db.updateUser(params.id, updateData)
 
-    // Log activity
-    db.createAuditLog({
+    // Corrigido: Adicionado await e campos obrigatórios (details/ipAddress/resource)
+    await db.createAuditLog({
       userId: currentUser.id,
       action: "update_user",
       resource: "user",
-      resourceId: params.id,
-      ip: request.headers.get("x-forwarded-for") || "unknown",
       userAgent: request.headers.get("user-agent") || "unknown",
+      details: `Updated user ${params.id}`,
+      ipAddress: request.headers.get("x-forwarded-for") || "127.0.0.1"
     })
 
-    // Remove password from response
-    const { password, ...sanitizedUser } = updatedUser
-
-    return NextResponse.json({
-      message: "Usuário atualizado com sucesso",
-      user: sanitizedUser,
-    })
+    const { password, ...sanitizedUser } = updatedUser as any
+    return NextResponse.json({ message: "Sucesso", user: sanitizedUser })
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: error.errors[0].message }, { status: 400 })
-    }
-    console.error("[v0] Update user error:", error)
-    return NextResponse.json({ error: "Erro ao atualizar usuário" }, { status: 500 })
+    if (error instanceof z.ZodError) return NextResponse.json({ error: error.errors[0].message }, { status: 400 })
+    return NextResponse.json({ error: "Erro ao atualizar" }, { status: 500 })
   }
 }
 
 // DELETE /api/users/[id] - Delete/deactivate user
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    // Get access token from header
     const authHeader = request.headers.get("authorization")
     const token = authHeader?.replace("Bearer ", "")
 
-    if (!token) {
-      return NextResponse.json({ error: "Token não fornecido" }, { status: 401 })
+    if (!token) return NextResponse.json({ error: "Token não fornecido" }, { status: 401 })
+
+    const payload = verifyToken(token) as any
+    if (!payload) return NextResponse.json({ error: "Token inválido" }, { status: 401 })
+
+    const currentUser = await db.getUserById(payload.userId)
+    if (!currentUser || !hasPermission(currentUser.role as any, "users", "delete")) {
+      return NextResponse.json({ error: "Sem permissão" }, { status: 403 })
     }
 
-    // Verify token
-    const payload = verifyToken(token)
-    if (!payload) {
-      return NextResponse.json({ error: "Token inválido" }, { status: 401 })
-    }
-
-    // Get current user
-    const currentUser = db.getUserById(payload.userId)
-    if (!currentUser) {
-      return NextResponse.json({ error: "Usuário não encontrado" }, { status: 401 })
-    }
-
-    // Check permission
-    if (!checkPermission(currentUser.role, "users", "delete")) {
-      return NextResponse.json({ error: "Sem permissão para deletar usuários" }, { status: 403 })
-    }
-
-    // Prevent self-deletion
     if (currentUser.id === params.id) {
-      return NextResponse.json({ error: "Você não pode deletar sua própria conta" }, { status: 400 })
+      return NextResponse.json({ error: "Não pode deletar a própria conta" }, { status: 400 })
     }
 
-    // Get target user
-    const targetUser = db.getUserById(params.id)
-    if (!targetUser) {
-      return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 })
-    }
+    const targetUser = await db.getUserById(params.id)
+    if (!targetUser) return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 })
 
-    // Soft delete (deactivate)
-    db.updateUser(params.id, { isActive: false })
+    // Corrigido: Adicionado await
+    await db.updateUser(params.id, { isActive: false })
+    await db.revokeAllUserRefreshTokens(params.id)
 
-    // Revoke all refresh tokens
-    db.revokeAllUserRefreshTokens(params.id)
-
-    // Log activity
-    db.createAuditLog({
+    await db.createAuditLog({
       userId: currentUser.id,
       action: "delete_user",
       resource: "user",
-      resourceId: params.id,
-      ip: request.headers.get("x-forwarded-for") || "unknown",
       userAgent: request.headers.get("user-agent") || "unknown",
+      details: `Deactivated user ${params.id}`,
+      ipAddress: request.headers.get("x-forwarded-for") || "127.0.0.1"
     })
 
-    return NextResponse.json({
-      message: "Usuário desativado com sucesso",
-    })
+    return NextResponse.json({ message: "Usuário desativado" })
   } catch (error) {
-    console.error("[v0] Delete user error:", error)
-    return NextResponse.json({ error: "Erro ao deletar usuário" }, { status: 500 })
+    return NextResponse.json({ error: "Erro ao deletar" }, { status: 500 })
   }
 }

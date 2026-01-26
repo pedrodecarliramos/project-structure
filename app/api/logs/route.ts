@@ -32,9 +32,9 @@ export async function GET(request: NextRequest) {
     }
 
     // 2. Changed 'checkPermission' to 'hasPermission'
-    if (!hasPermission(currentUser.role, "logs", "read")) {
-      return NextResponse.json({ error: "Sem permissão para visualizar logs" }, { status: 403 })
-    }
+    if (!hasPermission(currentUser.role as any, "logs", "read")) {
+  return NextResponse.json({ error: "Sem permissão para visualizar logs" }, { status: 403 })
+}
 
     const searchParams = request.nextUrl.searchParams
     const page = Number.parseInt(searchParams.get("page") || "1")
