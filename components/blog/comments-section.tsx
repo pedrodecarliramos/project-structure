@@ -137,7 +137,7 @@ export function CommentsSection({ postSlug, initialComments }: CommentsSectionPr
             {comments.length === 0 ? (
               <Card className="p-8 text-center">
                 <MessageSquare className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">No comments yet. Be the first to share your thoughts!</p>
+                <p className="text-muted-foreground">sem comentarios ainda</p>
               </Card>
             ) : (
               comments.map((comment) => <CommentCard key={comment.id} comment={comment} onReply={handleReply} />)
