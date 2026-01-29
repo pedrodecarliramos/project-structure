@@ -15,17 +15,17 @@ export function RoleDistributionChart() {
     loadData()
   }, [])
 
-  const loadData = async () => {
-    const users = await db.getUsers()
-    const roles = await db.getRoles()
+  async function loadData() {
+  const users = (await db.getUsers()) ?? []
+  const roles = (await db.getRoles()) ?? []
 
-    const distribution = roles.map((role) => ({
-      name: role.name,
-      value: users.filter((u) => u.roleId === role.id).length,
-    }))
+  const distribution = roles.map((role) => ({
+    name: role.name,
+    value: users.filter((u) => u.roleId === role.id).length,
+  }))
 
-    setData(distribution)
-  }
+  setData(distribution)
+}
 
   return (
     <Card className="glass-strong">
@@ -40,7 +40,7 @@ export function RoleDistributionChart() {
               label: "Usuários",
             },
           }}
-          className="h-[300px]"
+          className="h-300px"
         >
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>

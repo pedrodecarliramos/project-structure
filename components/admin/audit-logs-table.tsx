@@ -22,9 +22,9 @@ export function AuditLogsTable() {
   }, [])
 
   const loadData = async () => {
-    const logsData = await db.getAuditLogs()
-    const usersData = await db.getUsers()
-    setLogs(logsData.reverse()) // Most recent first
+    const logsData: AuditLog[] = db.getAuditLogs() || []
+    const usersData: User[] = (await db.getUsers()) || []
+    setLogs([...logsData].reverse()) // Most recent first
     setUsers(usersData)
   }
 
@@ -70,7 +70,7 @@ export function AuditLogsTable() {
           <div className="flex items-center gap-2">
             <Filter className="h-4 w-4 text-muted-foreground" />
             <Select value={actionFilter} onValueChange={setActionFilter}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-180px">
                 <SelectValue placeholder="Filtrar ação" />
               </SelectTrigger>
               <SelectContent>

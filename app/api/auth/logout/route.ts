@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
       if (payload) {
         const userId = payload.sub || payload.id
         
-        await db.revokeRefreshToken(refreshToken)
+        await db.getRefreshToken(refreshToken)
 
         const user = await db.getUserById(userId)
 

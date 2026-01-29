@@ -50,6 +50,13 @@ export function CreateUserDialog({ roles, open, onOpenChange, onSave }: CreateUs
         roleId: formData.roleId,
         isActive: true,
         emailVerified: true,
+        sub: "",
+        role: function (role: any, arg1: string, arg2: string): unknown {
+          throw new Error("Function not implemented.")
+        },
+        userId: function (userId: any): unknown {
+          throw new Error("Function not implemented.")
+        }
       })
 
       setFormData({ name: "", email: "", password: "", roleId: "user" })
