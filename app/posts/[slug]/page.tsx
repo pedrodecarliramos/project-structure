@@ -59,7 +59,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                 <Button variant="ghost" size="sm" asChild className="mb-6">
                   <Link href="/">
                     <ArrowLeft className="mr-2 h-4 w-4" />
-                    Back to Home
+                    Voltar para Home
                   </Link>
                 </Button>
 
@@ -190,9 +190,9 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                     className="rounded-full"
                   />
                   <div>
-                    <h3 className="text-xl font-bold mb-2">About {post.author.name}</h3>
+                    <h3 className="text-xl font-bold mb-2">Sobre {post.author.name}</h3>
                     <p className="text-muted-foreground">
-                      A passionate writer and developer sharing insights about web development, programming, and design.
+                      Um desenvolvedor apaixonado que compartilha insights sobre desenvolvimento web, programação e design.
                     </p>
                   </div>
                 </div>
@@ -208,7 +208,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           <section className="py-12 bg-muted/30">
             <div className="container mx-auto px-4">
               <div className="max-w-6xl mx-auto">
-                <h2 className="text-3xl font-bold mb-8">Related Posts</h2>
+                <h2 className="text-3xl font-bold mb-8">Posts Relacionados</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {relatedPosts.map((relatedPost) => (
                     <PostCard key={relatedPost.slug} post={relatedPost} />

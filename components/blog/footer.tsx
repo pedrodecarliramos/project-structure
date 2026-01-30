@@ -14,8 +14,7 @@ export function Footer() {
               <span className="font-bold text-xl">Blog</span>
             </div>
             <p className="text-muted-foreground text-sm max-w-md text-pretty">
-              A modern blog platform built with Next.js, featuring the latest web development tutorials, programming
-              insights, and design techniques.
+              Um blog moderno sobre desenvolvimento web, programação e design, compartilhando insights,
             </p>
           </div>
 
@@ -41,14 +40,14 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="font-semibold mb-4">Categories</h4>
+            <h4 className="font-semibold mb-4">Categorias</h4>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
                   href="/categories/web-development"
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
-                  Web Development
+                  Desenvolvimento Web
                 </Link>
               </li>
               <li>
@@ -56,7 +55,7 @@ export function Footer() {
                   href="/categories/programming"
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
-                  Programming
+                  Programação
                 </Link>
               </li>
               <li>
@@ -71,13 +70,13 @@ export function Footer() {
         <Separator className="mb-8" />
 
         <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} Blog. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Blog. Todos os direitos reservados.</p>
           <div className="flex gap-6">
             <Link href="/privacy" className="hover:text-primary transition-colors">
-              Privacy Policy
+              Politica de Privacidade
             </Link>
             <Link href="/terms" className="hover:text-primary transition-colors">
-              Terms of Service
+              Termos de Serviço
             </Link>
           </div>
         </div>

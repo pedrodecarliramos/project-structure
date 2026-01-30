@@ -24,45 +24,44 @@ export interface Category {
 // Mock blog posts data
 export const posts: Post[] = [
   {
-    slug: "getting-started-with-nextjs",
-    title: "Getting Started with Next.js 16: A Complete Guide",
+    slug: "começando-com-nextjs-16-guia-completo",
+    title: "Começando com Next.js 16: Um Guia Completo",
     excerpt:
-      "Learn how to build modern web applications with Next.js 16, including the latest features like Turbopack and improved caching.",
-    content: `Next.js 16 brings exciting new features that make building web applications faster and more efficient. In this comprehensive guide, we'll explore the key improvements and how to leverage them in your projects.
+      "Aprenda como construir aplicações web modernas com Next.js 16, incluindo os recursos mais recentes como Turbopack e cache aprimorado.",
+    content: `Next.js 16 traz novas funcionalidades emocionantes que tornam a construção de aplicações web mais rápida e eficiente. Neste guia completo, exploraremos as principais melhorias e como aproveitá-las em seus projetos.
+## O que há de novo no Next.js 16
 
-## What's New in Next.js 16
+O Next.js 16 introduz várias funcionalidades revolucionárias:
 
-Next.js 16 introduces several game-changing features:
+- **Turbopack como Padrão**: O novo bundler agora é estável e fornece tempos de build significativamente mais rápidos
+- **APIs de Cache Aprimoradas**: Melhor controle sobre o cache de dados com revalidateTag e updateTag
+- **Suporte ao React 19**: Suporte completo para os recursos mais recentes do React
+- **Performance Aprimorada**: Otimizações em todos os aspectos para carregamentos de página mais rápidos
 
-- **Turbopack as Default**: The new bundler is now stable and provides significantly faster build times
-- **Improved Caching APIs**: Better control over data caching with revalidateTag and updateTag
-- **React 19 Support**: Full support for the latest React features
-- **Enhanced Performance**: Optimizations across the board for faster page loads
+## Começando
 
-## Getting Started
-
-To create a new Next.js 16 project, simply run:
+Para criar um novo projeto Next.js 16, simplesmente execute:
 
 \`\`\`bash
 npx create-next-app@latest my-app
 \`\`\`
 
-This will set up a new project with all the latest features enabled by default.
+Isso configurará um novo projeto com todos os recursos mais recentes habilitados por padrão.
 
-## Key Features to Explore
+## Principais Recursos para Explorar
 
-### Server Components
-Server Components are the foundation of modern Next.js applications. They allow you to render components on the server, reducing client-side JavaScript and improving performance.
+### Componentes do Servidor
+Os Componentes do Servidor são a base das aplicações modernas Next.js. Eles permitem renderizar componentes no servidor, reduzindo o JavaScript do lado do cliente e melhorando a performance.
 
 ### App Router
-The App Router provides a powerful file-based routing system with support for layouts, loading states, and error boundaries.
+O App Router fornece um sistema de roteamento baseado em arquivos poderoso com suporte para layouts, estados de carregamento e limites de erro.
 
-### Data Fetching
-Next.js 16 makes data fetching simple with async Server Components and the new caching APIs.
+### Busca de Dados
+O Next.js 16 torna a busca de dados simples com Componentes do Servidor assíncronos e as novas APIs de cache.
 
-## Conclusion
+## Conclusão
 
-Next.js 16 is a significant release that makes building web applications more enjoyable and efficient. Start exploring these features today!`,
+O Next.js 16 é uma versão significativa que torna a construção de aplicações web mais agradável e eficiente. Comece a explorar esses recursos hoje!`,
     date: "2025-01-10",
     author: {
       name: "Sarah Johnson",
@@ -74,32 +73,31 @@ Next.js 16 is a significant release that makes building web applications more en
     readingTime: "8 min read",
   },
   {
-    slug: "typescript-best-practices-2025",
-    title: "TypeScript Best Practices for 2025",
+    slug: "melhores-praticas-typescript-2025",
+    title: "Melhores Práticas de TypeScript para 2025",
     excerpt:
-      "Discover the latest TypeScript patterns and practices that will make your code more maintainable and type-safe.",
-    content: `TypeScript has become the de facto standard for building large-scale JavaScript applications. Let's explore the best practices that will help you write better TypeScript code in 2025.
+      "Descubra os padrões e práticas mais recentes do TypeScript que tornarão seu código mais mantível e seguro.",
+    content: `TypeScript se tornou o padrão de facto para construir aplicações JavaScript de grande escala. Vamos explorar as melhores práticas que ajudarão você a escrever um código TypeScript melhor em 2025.
+## Segurança de Tipos em Primeiro Lugar
 
-## Type Safety First
+Sempre priorize a segurança de tipos em seus projetos TypeScript. Use o modo estrito e evite tipos 'any' sempre que possível.
 
-Always prioritize type safety in your TypeScript projects. Use strict mode and avoid 'any' types whenever possible.
+## Tipos Utilitários
 
-## Utility Types
+O TypeScript fornece tipos utilitários poderosos que podem ajudá-lo a escrever código mais conciso e expressivo:
 
-TypeScript provides powerful utility types that can help you write more concise and expressive code:
+- **Pick**: Selecione propriedades específicas de um tipo
+- **Omit**: Exclua propriedades específicas de um tipo
+- **Partial**: Torne todas as propriedades opcionais
+- **Required**: Torne todas as propriedades obrigatórias
 
-- **Pick**: Select specific properties from a type
-- **Omit**: Exclude specific properties from a type
-- **Partial**: Make all properties optional
-- **Required**: Make all properties required
+## Genéricos
 
-## Generics
+Domine os genéricos para escrever código reutilizável e seguro para tipos. Os genéricos permitem criar componentes e funções que funcionam com múltiplos tipos.
 
-Master generics to write reusable and type-safe code. Generics allow you to create components and functions that work with multiple types.
+## Conclusão
 
-## Conclusion
-
-Following these best practices will help you write more maintainable and reliable TypeScript code.`,
+Seguir essas melhores práticas ajudará você a escrever código TypeScript mais mantível e confiável.`,
     date: "2025-01-08",
     author: {
       name: "Michael Chen",
@@ -111,31 +109,30 @@ Following these best practices will help you write more maintainable and reliabl
     readingTime: "6 min read",
   },
   {
-    slug: "modern-css-techniques",
-    title: "Modern CSS Techniques You Should Know",
+    slug: "tecnicas-modernas-css-que-voce-deve-conhecer",
+    title: "Técnicas Modernas de CSS Que Você Deve Conhecer",
     excerpt:
-      "From container queries to CSS Grid, explore the modern CSS features that will transform how you build layouts.",
-    content: `CSS has evolved significantly in recent years. Let's explore the modern techniques that will help you build better user interfaces.
+      "De queries de container até Grid CSS, explore as técnicas modernas de CSS que transformarão a forma como você constrói layouts.",
+    content: `CSS evoluiu significativamente nos últimos anos. Vamos explorar as técnicas modernas que ajudarão você a criar melhores interfaces de usuário.
+## Queries de Container
 
-## Container Queries
-
-Container queries allow you to style elements based on their container's size, not just the viewport. This is a game-changer for component-based design.
+As queries de container permitem estilizar elementos com base no tamanho de seu container, não apenas da viewport. Isso é uma mudança revolucionária para o design baseado em componentes.
 
 ## CSS Grid
 
-CSS Grid provides a powerful two-dimensional layout system. Combined with Flexbox, you can create any layout imaginable.
+O CSS Grid fornece um sistema de layout bidimensional poderoso. Combinado com Flexbox, você pode criar qualquer layout imaginável.
 
-## Custom Properties
+## Propriedades Personalizadas
 
-CSS custom properties (variables) enable you to create maintainable and themeable designs.
+As propriedades personalizadas do CSS (variáveis) permitem criar designs mantíveis e tematizáveis.
 
-## Modern Selectors
+## Seletores Modernos
 
-New CSS selectors like :has(), :is(), and :where() provide more power and flexibility in your stylesheets.
+Novos seletores CSS como :has(), :is() e :where() fornecem mais poder e flexibilidade em suas folhas de estilo.
 
-## Conclusion
+## Conclusão
 
-These modern CSS techniques will help you build more maintainable and responsive user interfaces.`,
+Essas técnicas modernas de CSS ajudarão você a construir interfaces de usuário mais mantíveis e responsivas.`,
     date: "2025-01-05",
     author: {
       name: "Emily Rodriguez",
@@ -147,38 +144,38 @@ These modern CSS techniques will help you build more maintainable and responsive
     readingTime: "7 min read",
   },
   {
-    slug: "react-server-components-explained",
-    title: "React Server Components Explained",
-    excerpt: "Understand how React Server Components work and why they're revolutionary for building web applications.",
-    content: `React Server Components represent a fundamental shift in how we build React applications. Let's dive deep into how they work.
+    slug: "react-server-components-explicado",
+    title: "React Server Components Explicado",
+    excerpt: "Entenda como os React Server Components funcionam e por que são revolucionários para construir aplicações web.",
+    content: `Os React Server Components representam uma mudança fundamental em como construímos aplicações React. Vamos mergulhar fundo em como eles funcionam.
 
-## What Are Server Components?
+## O que são Componentes do Servidor?
 
-Server Components are React components that run exclusively on the server. They allow you to build data-intensive UIs without sending JavaScript to the client.
+Os Componentes do Servidor são componentes React que executam exclusivamente no servidor. Eles permitem construir UIs intensivas em dados sem enviar JavaScript para o cliente.
 
-## Benefits
+## Benefícios
 
-- **Zero Bundle Size**: Server Components don't add to your client-side bundle
-- **Direct Backend Access**: Access databases and APIs directly without creating API routes
-- **Automatic Code Splitting**: Only client components are sent to the browser
+- **Tamanho de Bundle Zero**: Os Componentes do Servidor não adicionam ao seu bundle do lado do cliente
+- **Acesso Direto ao Backend**: Acesse bancos de dados e APIs diretamente sem criar rotas de API
+- **Divisão Automática de Código**: Apenas componentes do cliente são enviados para o navegador
 
-## When to Use Server Components
+## Quando Usar Componentes do Servidor
 
-Use Server Components for:
-- Data fetching
-- Accessing backend resources
-- Keeping sensitive information on the server
+Use Componentes do Servidor para:
+- Busca de dados
+- Acesso a recursos do backend
+- Manter informações sensíveis no servidor
 
-## Client Components
+## Componentes do Cliente
 
-Client Components are necessary for:
-- Interactivity and event handlers
-- Browser-only APIs
-- State and effects
+Os Componentes do Cliente são necessários para:
+- Interatividade e manipuladores de eventos
+- APIs apenas do navegador
+- Estado e efeitos
 
-## Conclusion
+## Conclusão
 
-Server Components are the future of React development, enabling better performance and developer experience.`,
+Os Componentes do Servidor são o futuro do desenvolvimento React, permitindo melhor performance e experiência do desenvolvedor.`,
     date: "2025-01-03",
     author: {
       name: "David Park",
@@ -190,38 +187,38 @@ Server Components are the future of React development, enabling better performan
     readingTime: "10 min read",
   },
   {
-    slug: "web-accessibility-guide",
-    title: "The Complete Web Accessibility Guide",
-    excerpt: "Learn how to make your websites accessible to everyone with practical tips and techniques.",
-    content: `Web accessibility ensures that everyone, regardless of their abilities, can use your website. Here's a comprehensive guide to building accessible web applications.
+    slug: "acessibilidade-web-guia-completo",
+    title: "Guia Completo de Acessibilidade Web",
+    excerpt: "Aprenda como tornar seus websites acessíveis a todos com dicas práticas e técnicas.",
+    content: `A acessibilidade web garante que todos, independentemente de suas habilidades, possam usar seu website. Aqui está um guia completo para criar aplicações web acessíveis.
 
-## Why Accessibility Matters
+## Por Que A Acessibilidade Importa
 
-Accessibility isn't just about compliance—it's about creating better experiences for all users.
+A acessibilidade não é apenas sobre conformidade—é sobre criar melhores experiências para todos os usuários.
 
-## Semantic HTML
+## HTML Semântico
 
-Use semantic HTML elements like <nav>, <main>, <article>, and <aside> to provide structure and meaning to your content.
+Use elementos HTML semânticos como <nav>, <main>, <article> e <aside> para fornecer estrutura e significado ao seu conteúdo.
 
-## ARIA Attributes
+## Atributos ARIA
 
-ARIA (Accessible Rich Internet Applications) attributes enhance the accessibility of dynamic content and custom controls.
+Os atributos ARIA (Accessible Rich Internet Applications) aprimoram a acessibilidade de conteúdo dinâmico e controles personalizados.
 
-## Keyboard Navigation
+## Navegação por Teclado
 
-Ensure all interactive elements are keyboard accessible. Users should be able to navigate your site without a mouse.
+Garanta que todos os elementos interativos sejam acessíveis por teclado. Os usuários devem poder navegar em seu site sem um mouse.
 
-## Color Contrast
+## Contraste de Cor
 
-Maintain sufficient color contrast between text and backgrounds to ensure readability for users with visual impairments.
+Mantenha contraste de cor suficiente entre texto e fundos para garantir a legibilidade para usuários com deficiências visuais.
 
-## Testing
+## Teste
 
-Use tools like axe DevTools and screen readers to test your website's accessibility.
+Use ferramentas como axe DevTools e leitores de tela para testar a acessibilidade do seu website.
 
-## Conclusion
+## Conclusão
 
-Building accessible websites is essential for creating inclusive digital experiences.`,
+Construir websites acessíveis é essencial para criar experiências digitais inclusivas.`,
     date: "2025-01-01",
     author: {
       name: "Jennifer Williams",
@@ -233,42 +230,42 @@ Building accessible websites is essential for creating inclusive digital experie
     readingTime: "9 min read",
   },
   {
-    slug: "building-scalable-apis",
-    title: "Building Scalable APIs with Node.js",
-    excerpt: "Best practices for designing and implementing APIs that can handle growth and scale efficiently.",
-    content: `Building scalable APIs requires careful planning and implementation. Let's explore the best practices for creating APIs that can grow with your application.
+    slug: "construindo-apis-escalaveis-com-nodejs",
+    title: "Construindo APIs Escaláveis com Node.js",
+    excerpt: "Melhores práticas para projetar e implementar APIs que conseguem lidar com crescimento e escala de forma eficiente.",
+    content: `Construir APIs escaláveis requer planejamento e implementação cuidadosos. Vamos explorar as melhores práticas para criar APIs que podem crescer com sua aplicação.
 
-## API Design Principles
+## Princípios de Design de API
 
-Follow RESTful conventions and use consistent naming patterns. Design your API with versioning in mind from the start.
+Siga convenções RESTful e use padrões de nomenclatura consistentes. Projete sua API com versionamento em mente desde o início.
 
-## Authentication and Security
+## Autenticação e Segurança
 
-Implement robust authentication using JWT tokens or OAuth. Always use HTTPS and validate all inputs.
+Implemente autenticação robusta usando tokens JWT ou OAuth. Sempre use HTTPS e valide todas as entradas.
 
-## Rate Limiting
+## Limitação de Taxa
 
-Protect your API from abuse by implementing rate limiting. This ensures fair usage and prevents overload.
+Proteja sua API contra abuso implementando limitação de taxa. Isso garante uso justo e previne sobrecarga.
 
-## Caching Strategies
+## Estratégias de Cache
 
-Use caching effectively to reduce database load and improve response times. Consider Redis for distributed caching.
+Use cache efetivamente para reduzir a carga do banco de dados e melhorar os tempos de resposta. Considere Redis para cache distribuído.
 
-## Error Handling
+## Tratamento de Erros
 
-Provide clear, consistent error messages with appropriate HTTP status codes. Log errors for debugging and monitoring.
+Forneça mensagens de erro claras e consistentes com códigos de status HTTP apropriados. Registre erros para depuração e monitoramento.
 
-## Documentation
+## Documentação
 
-Create comprehensive API documentation using tools like Swagger or Postman. Good documentation is crucial for API adoption.
+Crie documentação abrangente da API usando ferramentas como Swagger ou Postman. Boa documentação é crucial para a adoção da API.
 
-## Monitoring and Analytics
+## Monitoramento e Análises
 
-Implement monitoring to track API performance, errors, and usage patterns. Use this data to optimize and scale.
+Implemente monitoramento para rastrear performance da API, erros e padrões de uso. Use esses dados para otimizar e escalar.
 
-## Conclusion
+## Conclusão
 
-Following these practices will help you build APIs that are reliable, secure, and ready to scale.`,
+Seguir essas práticas ajudará você a construir APIs que são confiáveis, seguras e prontas para escalar.`,
     date: "2024-12-28",
     author: {
       name: "Alex Turner",
@@ -284,20 +281,20 @@ Following these practices will help you build APIs that are reliable, secure, an
 export const categories: Category[] = [
   {
     slug: "web-development",
-    name: "Web Development",
-    description: "Modern web development tutorials, frameworks, and best practices",
+    name: "Desenvolvimento Web",
+    description: "Tutoriais modernos de desenvolvimento web, frameworks e melhores práticas",
     postCount: posts.filter((p) => p.category === "web-development").length,
   },
   {
     slug: "programming",
-    name: "Programming",
-    description: "Programming languages, algorithms, and software engineering",
+    name: "Programação",
+    description: "Linguagens de programação, algoritmos e engenharia de software",
     postCount: posts.filter((p) => p.category === "programming").length,
-  },
+  },        
   {
     slug: "design",
     name: "Design",
-    description: "UI/UX design, CSS techniques, and visual design principles",
+    description: "Design UI/UX, técnicas CSS e princípios de design visual",
     postCount: posts.filter((p) => p.category === "design").length,
   },
 ]

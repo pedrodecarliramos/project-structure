@@ -18,10 +18,10 @@ export function Header() {
               Home
             </Link>
             <Link href="/categories" className="text-sm font-medium hover:text-primary transition-colors">
-              Categories
+              Categorias
             </Link>
             <Link href="/about" className="text-sm font-medium hover:text-primary transition-colors">
-              About
+              Sobre
             </Link>
           </nav>
 

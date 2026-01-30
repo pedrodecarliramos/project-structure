@@ -18,8 +18,8 @@ export default function CategoriesPage() {
       <main className="flex-1">
         <section className="py-12 bg-muted/30">
           <div className="container mx-auto px-4">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Categories</h1>
-            <p className="text-lg text-muted-foreground">Explore content organized by topics</p>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">Categorias</h1>
+            <p className="text-lg text-muted-foreground">Explore conteúdo organizado por tópicos</p>
           </div>
         </section>
 
