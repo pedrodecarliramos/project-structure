@@ -22,7 +22,7 @@ export function AuditLogsTable() {
   }, [])
 
   const loadData = async () => {
-    const logsData: AuditLog[] = db.getAuditLogs() || []
+    const logsData = (await db.getAuditLogs()) ?? []
     const usersData: User[] = (await db.getUsers()) || []
     setLogs([...logsData].reverse()) // Most recent first
     setUsers(usersData)
