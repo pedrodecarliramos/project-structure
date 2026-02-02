@@ -1,9 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import { verifyToken } from "@/lib/auth"
-import { hasPermission } from "@/lib/permissions" // 1. Fixed import name
+import { hasPermission } from "@/lib/permissions"
 
-// If you don't have a global Log type, define it here or import it
 interface AuditLog {
   id: string;
   userId: string;
@@ -26,15 +25,16 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Token inválido" }, { status: 401 })
     }
 
+    // O TS reclamava aqui porque achava que getUserById retornava 'void'
     const currentUser = await db.getUserById(payload.userId as unknown as string)
+    
     if (!currentUser) {
       return NextResponse.json({ error: "Usuário não encontrado" }, { status: 401 })
     }
 
-    // 2. Changed 'checkPermission' to 'hasPermission'
     if (!hasPermission(currentUser.role as any, "logs", "read")) {
-  return NextResponse.json({ error: "Sem permissão para visualizar logs" }, { status: 403 })
-}
+      return NextResponse.json({ error: "Sem permissão" }, { status: 403 })
+    }
 
     const searchParams = request.nextUrl.searchParams
     const page = Number.parseInt(searchParams.get("page") || "1")
@@ -43,33 +43,30 @@ export async function GET(request: NextRequest) {
     const userId = searchParams.get("userId") || ""
     const resource = searchParams.get("resource") || ""
 
-    // 3. Ensure this method exists in your db.ts. 
-    // If db.getAuditLogs() is the correct name, use that.
-    let logs: AuditLog[] = await db.getAuditLogs() 
+    // Aqui garantimos que logs seja um array, mesmo que o DB falhe
+    const rawLogs = await db.getAuditLogs()
+    let logs: AuditLog[] = Array.isArray(rawLogs) ? rawLogs : []
 
-    // 4. Added explicit types to callback parameters
     if (action) {
-      logs = logs.filter((log: AuditLog) => log.action === action)
+      logs = logs.filter((log) => log.action === action)
     }
 
     if (userId) {
-      logs = logs.filter((log: AuditLog) => log.userId === userId)
+      logs = logs.filter((log) => log.userId === userId)
     }
 
     if (resource) {
-      logs = logs.filter((log: AuditLog) => log.resource === resource)
+      logs = logs.filter((log) => log.resource === resource)
     }
 
-    // 5. Added types to sort parameters
-    logs.sort((a: AuditLog, b: AuditLog) => b.createdAt.getTime() - a.createdAt.getTime())
+    logs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
 
     const total = logs.length
     const startIndex = (page - 1) * limit
-    const endIndex = startIndex + limit
-    const paginatedLogs = logs.slice(startIndex, endIndex)
+    const paginatedLogs = logs.slice(startIndex, startIndex + limit)
 
     const enrichedLogs = await Promise.all(
-      paginatedLogs.map(async (log: AuditLog) => {
+      paginatedLogs.map(async (log) => {
         const user = await db.getUserById(log.userId)
         return {
           ...log,

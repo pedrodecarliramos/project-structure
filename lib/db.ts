@@ -192,8 +192,7 @@ class MockDatabase {
   // =====================
 
   async getPasswordResetToken(
-    token: string
-  ): Promise<User | null> {
+token: string, resetToken: string  ): Promise<User | null> {
     await this.ensureInitialized()
     const users = await this.getUsers()
     return users.find((u) => u.resetPasswordToken === token) || null

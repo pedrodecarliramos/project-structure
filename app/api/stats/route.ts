@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Token inválido" }, { status: 401 })
     }
 
-    const currentUser = await db.getUserById(payload.userId)
+    const currentUser = (await db.getUserById(payload.userId) as unknown as User | null)
     if (!currentUser) {
       return NextResponse.json({ error: "Usuário não encontrado" }, { status: 401 })
     }
@@ -30,8 +30,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Sem permissão para visualizar estatísticas" }, { status: 403 })
     }
 
-    const users = await db.getUsers()
-    const logs = await db.getAuditLogs()
+    const users = (await db.getUsers() as unknown as User[]) || []
+    const logs = (await db.getAuditLogs() as unknown as AuditLog[]) || []
 
     const totalUsers = users.length
     const activeUsers = users.filter((u: User) => u.isActive).length

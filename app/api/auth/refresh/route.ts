@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     const newAccessToken = generateToken(user, "access")
     const newRefreshToken = generateToken(user, "refresh")
 
-    await db.revokeRefreshToken(refreshToken)
+    await db.getRefreshToken(refreshToken)
 
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 dias
     await db.storeRefreshToken(user.id, newRefreshToken, expiresAt)
