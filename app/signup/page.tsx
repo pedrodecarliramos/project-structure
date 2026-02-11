@@ -1,6 +1,14 @@
 import { SignupForm } from "@/components/auth/signup-form"
 import Link from "next/link"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { apiFetch } from "@/lib/api";
+
+const handleSignup = async (data: any) => {
+  await apiFetch("/users", { 
+    method: "POST", 
+    body: JSON.stringify({ user: data }) 
+  });
+};
 
 export default function SignupPage() {
   return (

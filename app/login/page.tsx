@@ -1,6 +1,16 @@
 import { LoginForm } from "@/components/auth/login-form"
 import Link from "next/link"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { apiFetch } from "@/lib/api";
+
+
+
+const handleLogin = async (credentials: any) => {
+  await apiFetch("/login", { 
+    method: "POST", 
+    body: JSON.stringify(credentials) 
+  });
+};
 
 export default function LoginPage() {
   return (

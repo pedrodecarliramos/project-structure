@@ -50,11 +50,7 @@ export default function HomePage() {
           Sistema de Autenticação
         </h1>
 
-        <p className="text-lg text-muted-foreground">
-          Criação de usuários integrada com Rails API + PostgreSQL
-        </p>
-
-        {/* FORM */}
+       
         <div className="space-y-4">
           <input
             className="w-full p-3 rounded-lg border"
