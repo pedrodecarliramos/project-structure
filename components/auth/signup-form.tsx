@@ -86,17 +86,18 @@ export function SignupForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
       <div className="space-y-2">
         <Label htmlFor="name">Nome completo</Label>
         <Input
           id="name"
           type="text"
-          placeholder="João Silva"
+          placeholder="Seu nome"
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           required
           disabled={loading}
+          autoComplete="one-time-code"
         />
       </div>
 
@@ -105,11 +106,12 @@ export function SignupForm() {
         <Input
           id="email"
           type="email"
-          placeholder="seu@email.com"
+          placeholder="@email.com"
           value={formData.email}
           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
           required
           disabled={loading}
+          autoComplete="none"
         />
       </div>
 
@@ -123,6 +125,7 @@ export function SignupForm() {
           onChange={(e) => setFormData({ ...formData, password: e.target.value })}
           required
           disabled={loading}
+          autoComplete="new-password"
         />
         <p className="text-xs text-muted-foreground">Mínimo de 6 caracteres</p>
       </div>
@@ -137,6 +140,7 @@ export function SignupForm() {
           onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
           required
           disabled={loading}
+          autoComplete="new-password"
         />
       </div>
 
